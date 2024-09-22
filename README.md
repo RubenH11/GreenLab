@@ -22,7 +22,7 @@ For the VU Green Lab course
 - Performance (s))
 
 ## Roughly:
-1*1*10 = 10 experiments
+1 * 1 * 10 = 10 experiments
 
 90 takes -> 10*30 = 300
 
