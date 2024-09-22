@@ -24,7 +24,7 @@ For the VU Green Lab course
 ## Roughly:
 1 * 1 * 10 = 10 experiments
 
-90 takes -> 10*30 = 300
+30 takes -> 10*30 = 300
 
 2 min. between = 600 min.
 
