@@ -14,7 +14,7 @@ For the VU Green Lab course
   - Modin
   - Polars
   - Das
-## Objects:
+## Subjects:
   - 5 memory-bound
   - 5 compute-bound
 ## Metrics
