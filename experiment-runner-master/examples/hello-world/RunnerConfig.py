@@ -63,7 +63,7 @@ class RunnerConfig:
         representing each run performed"""
         factor1 = FactorModel("Library", ['Pandas', 'Modin', 'Vaex', 'Polar', 'Dask'])
         factor2 = FactorModel("DataFrame size", ['Large', 'Small'])
-        subject = FactorModel("DAT", ['isna', 'replace', 'groupby', 'sort', 'mean', 'csvin', 'dropna', 'fillna', 'concat', 'merge'])
+        subject = FactorModel("DAT", ['isna', 'replace', 'groupby', 'sort', 'mean', 'drop', 'dropna', 'fillna', 'concat', 'merge'])
 
         self.run_table_model = RunTableModel(
             factors=[subject, factor1, factor2],
