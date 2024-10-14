@@ -17,7 +17,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "pandas_versus_hpc"
+    name:                       str             = "new_runner_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -29,7 +29,7 @@ class RunnerConfig:
 
     """The time Experiment Runner will wait after a run completes.
     This can be essential to accommodate for cooldown periods on some systems."""
-    time_between_runs_in_ms:    int             = 1
+    time_between_runs_in_ms:    int             = 1000
 
     # Dynamic configurations can be one-time satisfied here before the program takes the config as-is
     # e.g. Setting some variable based on some criteria
@@ -54,14 +54,15 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("Library", ['Pandas', 'Modin', 'Vaex', 'Polar', 'Dask'])
-        factor2 = FactorModel("DataFrame size", ['Large', 'Small'])
-        subject = FactorModel("DAT", ['isna', 'replace', 'groupby', 'sort', 'mean', 'drop', 'dropna', 'fillna', 'concat', 'merge'])
-
+        factor1 = FactorModel("example_factor1", ['example_treatment1', 'example_treatment2', 'example_treatment3'])
+        factor2 = FactorModel("example_factor2", [True, False])
         self.run_table_model = RunTableModel(
-            factors=[subject, factor1, factor2],
-            repetitions = 10,
-            data_columns=['avg_CPU_usage', 'avg_memory_usage', 'avg_execution_time', 'avg_energy_usage']
+            factors=[factor1, factor2],
+            exclude_variations=[
+                {factor1: ['example_treatment1']},                   # all runs having treatment "example_treatment1" will be excluded
+                {factor1: ['example_treatment2'], factor2: [True]},  # all runs having the combination ("example_treatment2", True) will be excluded
+            ],
+            data_columns=['avg_cpu', 'avg_mem']
         )
         return self.run_table_model
 
@@ -82,7 +83,6 @@ class RunnerConfig:
         For example, starting the target system to measure.
         Activities after starting the run should also be performed here."""
 
-        output.console.log(context)
         output.console_log("Config.start_run() called!")
 
     def start_measurement(self, context: RunnerContext) -> None:
