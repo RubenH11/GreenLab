@@ -11,6 +11,8 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 from os.path import dirname, realpath
 
+import time
+
 
 class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
@@ -54,13 +56,13 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("Library", ['Pandas', 'Modin', 'Vaex', 'Polar', 'Dask'])
-        factor2 = FactorModel("DataFrame size", ['Large', 'Small'])
-        subject = FactorModel("DAT", ['isna', 'replace', 'groupby', 'sort', 'mean', 'drop', 'dropna', 'fillna', 'concat', 'merge'])
+        factor1 = FactorModel("Library", ['Pandas', 'Modin', 'Polar', 'Dask'])
+        factor2 = FactorModel("DataFrame size", ['Large'])
+        subject = FactorModel("DFO", ['isna', 'replace', 'groupby', 'sort', 'mean', 'drop', 'dropna', 'fillna', 'concat', 'merge'])
 
         self.run_table_model = RunTableModel(
             factors=[subject, factor1, factor2],
-            repetitions = 10,
+            repetitions = 1,
             data_columns=['avg_CPU_usage', 'avg_memory_usage', 'avg_execution_time', 'avg_energy_usage']
         )
         return self.run_table_model
@@ -81,14 +83,15 @@ class RunnerConfig:
         """Perform any activity required for starting the run here.
         For example, starting the target system to measure.
         Activities after starting the run should also be performed here."""
-
-        output.console.log(context)
         output.console_log("Config.start_run() called!")
+        output.console_log(context.run_dir)
+        output.console_log(context.run_nr)
+        output.console_log(context.run_variation)
 
     def start_measurement(self, context: RunnerContext) -> None:
         """Perform any activity required for starting measurements."""
         output.console_log("Config.start_measurement() called!")
-
+        
     def interact(self, context: RunnerContext) -> None:
         """Perform any interaction with the running target system here, or block here until the target finishes."""
 
