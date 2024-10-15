@@ -7,21 +7,29 @@ import dask.dataframe as dd
 import numpy as np
 import polars as pl
 
-df = pl.DataFrame({
-    'A': [1, 20, '3', 4, 1],
-    'B': [10, 20, 40, 20, '50'],
-    'C': [100, 200, np.nan, 20, 500]
-}, strict=False)
+# df = pl.DataFrame({
+#     'A': [1, 20, '3', 4, 1],
+#     'B': [10, 20, 40, 20, '50'],
+#     'C': [100, 200, np.nan, 20, 500]
+# }, strict=False)
+df = pl.read_csv('../../data/loan2.csv', low_memory=False)
 
+# df.head(50).to_csv('loan2.csv', index=False)
 # df = df.fill_nan(None)
 # ddf = dd.from_pandas(df, npartitions=2)
 
-print(df, '\n')
-plp = PolarsDFOs(df)
+# df = df.with_columns([
+#     df[col].cast(pl.Float64) for col in df.columns if df[col].dtype == 
+# ])
+df = df.fill_null(np.nan)
 
-# print(plp.replace(10))
+plp = PolarsDFOs(df['mths_since_last_delinq', 'mths_since_last_record', 'open_acc'])
+print(plp.dataset, '\n')
+
+
+print(plp.isna())
 # print(plp.fillna())
-print(plp.concat(df.select(pl.col('A').alias('D'))))
+# print(plp.concat(df.select(pl.col('A').alias('D'))))
 # print(plp.merge(df[:,0:2], df[:,0:3].drop('B'), on='A'))
 # print(pp.groupby(df.iloc[:,0]))
 

@@ -5,7 +5,7 @@ class PolarsDFOs:
         self.dataset: pl.DataFrame = dataset
 
     def isna(self):
-        return self.dataset.select(pl.all().is_null())
+        return self.dataset.select(pl.all().is_nan())
 
     def replace(self, valueToReplaceWithApple):
         return self.dataset.with_columns(

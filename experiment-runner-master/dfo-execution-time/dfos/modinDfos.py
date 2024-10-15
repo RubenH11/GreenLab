@@ -1,8 +1,8 @@
-import modin.pandas as pd
+import modin.pandas as mdp
 
 class ModinDFOs:
     def __init__(self, dataset):
-        self.dataset: pd.DataFrame = dataset
+        self.dataset: mdp.DataFrame = dataset
 
     def isna(self):
         return self.dataset.isna()
@@ -21,6 +21,6 @@ class ModinDFOs:
     def fillna(self):
         return self.dataset.fillna('apple')
     def concat(self, column):
-        return pd.concat([self.dataset, column], axis=1) # 1 = columns
+        return mdp.concat([self.dataset, column], axis=1) # 1 = columns
     def merge(self, cols1, cols2, on):
         return cols1.merge(cols2, on=on)
