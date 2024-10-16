@@ -21,122 +21,10 @@ import modin.pandas as mpd
 import dask.dataframe as dd
 import polars as pl
 
-# from pandasDfos import PandasDFOs
-# from modinDfos import ModinDFOs
-# from polarsDfos import PolarsDFOs
-# from daskDfos import DaskDFOs
-
-class DaskDFOs:
-    def __init__(self, dataset):
-        self.dataset: dd.DataFrame = dataset
-
-    def isna(self):
-        return self.dataset.isna()
-    def replace(self, valueToReplaceWithApple):
-        return self.dataset.replace(valueToReplaceWithApple, 'apple')
-    def groupby(self, column):
-        return self.dataset.groupby(column)
-    def sort(self, column_name):
-        return self.dataset.sort_values(by=column_name)
-    def mean(self, column):
-        return column.mean()
-    def drop(self, column_name):
-        return self.dataset.drop(columns=column_name)
-    def dropna(self):
-        return self.dataset.dropna()
-    def fillna(self):
-        return self.dataset.fillna('apple')
-    def concat(self, column):
-        return dd.concat([self.dataset, column], axis=1) # 1 = columns
-    def merge(self, cols1, cols2, on):
-        return cols1.merge(cols2, on=on)
-
-class PolarsDFOs:
-    def __init__(self, dataset):
-        self.dataset: pl.DataFrame = dataset
-
-    def isna(self):
-        return self.dataset.select(pl.all().is_nan())
-
-    def replace(self, valueToReplaceWithApple):
-        return self.dataset.with_columns(
-            [pl.col(c).replace(valueToReplaceWithApple, 'apple') for c in self.dataset.columns]
-        )
-
-    def groupby(self, column):
-        return self.dataset.group_by(column)
-
-    def sort(self, column_name):
-        return self.dataset.sort(column_name)
-
-    def mean(self, column_name):
-        return self.dataset.select(pl.col(column_name).mean()).item()
-
-    def drop(self, column_name):
-        return self.dataset.drop(column_name)
-
-    def dropna(self):
-        return self.dataset.drop_nulls()
-
-    def fillna(self):
-        return self.dataset.fill_nan('apple')
-
-    def concat(self, column: pl.DataFrame):
-        return pl.concat([self.dataset, column], how='horizontal')
-
-    def merge(self, cols1 : pl.DataFrame, cols2, on):
-        return cols1.join(cols2, on=on, how='inner')
-
-class ModinDFOs:
-    def __init__(self, dataset):
-        self.dataset: mpd.DataFrame = dataset
-
-    def isna(self):
-        return self.dataset.isna()
-    def replace(self, valueToReplaceWithApple):
-        return self.dataset.replace(valueToReplaceWithApple, 'apple')
-    def groupby(self, column):
-        return self.dataset.groupby(column)
-    def sort(self, column_name):
-        return self.dataset.sort_values(by=column_name)
-    def mean(self, column):
-        return column.mean()
-    def drop(self, column_name):
-        return self.dataset.drop(columns=column_name)
-    def dropna(self):
-        return self.dataset.dropna()
-    def fillna(self):
-        return self.dataset.fillna('apple')
-    def concat(self, column):
-        return mpd.concat([self.dataset, column], axis=1) # 1 = columns
-    def merge(self, cols1, cols2, on):
-        return cols1.merge(cols2, on=on)
-
-class PandasDFOs:
-    def __init__(self, dataset):
-        self.dataset: pd.DataFrame = dataset
-
-    def isna(self):
-        return self.dataset.isna()
-    def replace(self, valueToReplaceWithApple):
-        return self.dataset.replace(valueToReplaceWithApple, 'apple')
-    def groupby(self, column):
-        return self.dataset.groupby(column)
-    def sort(self, column_name):
-        return self.dataset.sort_values(by=column_name)
-    def mean(self, column):
-        return column.mean()
-    def drop(self, column_name):
-        return self.dataset.drop(columns=column_name)
-    def dropna(self):
-        return self.dataset.dropna()
-    def fillna(self):
-        return self.dataset.fillna('apple')
-    def concat(self, column):
-        return pd.concat([self.dataset, column], axis=1) # 1 = columns
-    def merge(self, cols1, cols2, on):
-        return cols1.merge(cols2, on=on)
-
+from dfos.pandasDfos import PandasDFOs
+from dfos.modinDfos import ModinDFOs
+from dfos.polarsDfos import PolarsDFOs
+from dfos.daskDfos import DaskDFOs
 
 class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
@@ -182,8 +70,8 @@ class RunnerConfig:
         output.console_log("Custom config loaded")
 
     def set_functions_for_dataset(self):
-        output.console_log('start reading loan2.csv')
-        df = pd.read_csv('data/loan2.csv', low_memory=False)
+        output.console_log('start reading small.csv')
+        df = pd.read_csv('data/small.csv', low_memory=False)
 
         output.console_log('start processing to dataframes')
 

@@ -3,4 +3,7 @@ psutil
 tabulate
 dill
 jsonpickle
-# modin[ray]
+modin[ray]
+polars
+dask
+

@@ -12,7 +12,8 @@ import polars as pl
 #     'B': [10, 20, 40, 20, '50'],
 #     'C': [100, 200, np.nan, 20, 500]
 # }, strict=False)
-df = pl.read_csv('../../data/loan2.csv', low_memory=False)
+df = pd.read_csv('../data/large.csv', low_memory=False, nrows=500)
+df.to_csv('small.csv', index=False)
 
 # df.head(50).to_csv('loan2.csv', index=False)
 # df = df.fill_nan(None)
@@ -20,14 +21,14 @@ df = pl.read_csv('../../data/loan2.csv', low_memory=False)
 
 # df = df.with_columns([
 #     df[col].cast(pl.Float64) for col in df.columns if df[col].dtype == 
-# ])
-df = df.fill_null(np.nan)
+# # ])
+# df = df.fill_null(np.nan)
 
-plp = PolarsDFOs(df['mths_since_last_delinq', 'mths_since_last_record', 'open_acc'])
-print(plp.dataset, '\n')
+# plp = PolarsDFOs(df['mths_since_last_delinq', 'mths_since_last_record', 'open_acc'])
+# print(plp.dataset, '\n')
 
 
-print(plp.isna())
+# print(plp.isna())
 # print(plp.fillna())
 # print(plp.concat(df.select(pl.col('A').alias('D'))))
 # print(plp.merge(df[:,0:2], df[:,0:3].drop('B'), on='A'))
