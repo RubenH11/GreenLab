@@ -6,4 +6,5 @@ jsonpickle
 modin[ray]
 polars
 dask
-
+dask-expr
+paramiko

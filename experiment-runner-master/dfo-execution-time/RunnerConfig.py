@@ -15,16 +15,128 @@ import time
 import math
 import numpy as np
 import os
+import paramiko
 
 import pandas as pd
 import modin.pandas as mpd
 import dask.dataframe as dd
 import polars as pl
 
-from dfos.pandasDfos import PandasDFOs
-from dfos.modinDfos import ModinDFOs
-from dfos.polarsDfos import PolarsDFOs
-from dfos.daskDfos import DaskDFOs
+# from dfos.pandasDfos import PandasDFOs
+# from dfos.modinDfos import ModinDFOs
+# from dfos.polarsDfos import PolarsDFOs
+# from dfos.daskDfos import DaskDFOs
+
+class PolarsDFOs:
+    def __init__(self, dataset):
+        self.dataset: pl.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.select(pl.all().is_nan())
+
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.with_columns(
+            [pl.col(c).replace(valueToReplaceWithApple, 'apple') for c in self.dataset.columns]
+        )
+
+    def groupby(self, column):
+        return self.dataset.group_by(column)
+
+    def sort(self, column_name):
+        return self.dataset.sort(column_name)
+
+    def mean(self, column_name):
+        return self.dataset.select(pl.col(column_name).mean()).item()
+
+    def drop(self, column_name):
+        return self.dataset.drop(column_name)
+
+    def dropna(self):
+        return self.dataset.drop_nulls()
+
+    def fillna(self):
+        return self.dataset.fill_nan('apple')
+
+    def concat(self, column: pl.DataFrame):
+        return pl.concat([self.dataset, column], how='horizontal')
+
+    def merge(self, cols1 : pl.DataFrame, cols2, on):
+        return cols1.join(cols2, on=on, how='inner')
+
+class PandasDFOs:
+    def __init__(self, dataset):
+        self.dataset: pd.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.isna()
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.replace(valueToReplaceWithApple, 'apple')
+    def groupby(self, column):
+        return self.dataset.groupby(column)
+    def sort(self, column_name):
+        return self.dataset.sort_values(by=column_name)
+    def mean(self, column):
+        return column.mean()
+    def drop(self, column_name):
+        return self.dataset.drop(columns=column_name)
+    def dropna(self):
+        return self.dataset.dropna()
+    def fillna(self):
+        return self.dataset.fillna('apple')
+    def concat(self, column):
+        return pd.concat([self.dataset, column], axis=1) # 1 = columns
+    def merge(self, cols1, cols2, on):
+        return cols1.merge(cols2, on=on)
+
+class ModinDFOs:
+    def __init__(self, dataset):
+        self.dataset: mpd.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.isna()
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.replace(valueToReplaceWithApple, 'apple')
+    def groupby(self, column):
+        return self.dataset.groupby(column)
+    def sort(self, column_name):
+        return self.dataset.sort_values(by=column_name)
+    def mean(self, column):
+        return column.mean()
+    def drop(self, column_name):
+        return self.dataset.drop(columns=column_name)
+    def dropna(self):
+        return self.dataset.dropna()
+    def fillna(self):
+        return self.dataset.fillna('apple')
+    def concat(self, column):
+        return mpd.concat([self.dataset, column], axis=1) # 1 = columns
+    def merge(self, cols1, cols2, on):
+        return cols1.merge(cols2, on=on)
+
+class DaskDFOs:
+    def __init__(self, dataset):
+        self.dataset: dd.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.isna()
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.replace(valueToReplaceWithApple, 'apple')
+    def groupby(self, column):
+        return self.dataset.groupby(column)
+    def sort(self, column_name):
+        return self.dataset.sort_values(by=column_name)
+    def mean(self, column):
+        return column.mean()
+    def drop(self, column_name):
+        return self.dataset.drop(columns=column_name)
+    def dropna(self):
+        return self.dataset.dropna()
+    def fillna(self):
+        return self.dataset.fillna('apple')
+    def concat(self, column):
+        return dd.concat([self.dataset, column], axis=1) # 1 = columns
+    def merge(self, cols1, cols2, on):
+        return cols1.merge(cols2, on=on)
 
 class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
@@ -53,6 +165,7 @@ class RunnerConfig:
     # e.g. Setting some variable based on some criteria
     def __init__(self):
         """Executes immediately after program start, on config load"""
+        output.console_log(os.getcwd())
 
         EventSubscriptionController.subscribe_to_multiple_events([
             (RunnerEvents.BEFORE_EXPERIMENT, self.before_experiment),
@@ -66,7 +179,7 @@ class RunnerConfig:
             (RunnerEvents.AFTER_EXPERIMENT , self.after_experiment )
         ])
         self.run_table_model = None  # Initialized later
-        self.set_functions_for_dataset()
+        # self.set_functions_for_dataset()
         output.console_log("Custom config loaded")
 
     def set_functions_for_dataset(self):
@@ -77,8 +190,8 @@ class RunnerConfig:
 
         pandasDfos = PandasDFOs(df)
 
-        mdf = mpd.DataFrame(df)
-        modinDfos = ModinDFOs(mdf)
+        # mdf = mpd.DataFrame(df)
+        # modinDfos = ModinDFOs(mdf)
 
         pdf = pl.from_pandas(df)
         pdf.fill_null(np.nan) # required for isna and fillna
@@ -88,20 +201,20 @@ class RunnerConfig:
         daskDfos = DaskDFOs(ddf)
 
         df_col_grade = df['grade']
-        mdf_col_grade = mdf['grade']
+        # mdf_col_grade = mdf['grade']
         pdf_col_grade = pdf['grade']
         pdf_col_grade_as_renamed = pdf_col_grade.alias('renamed')
         ddf_col_grade = ddf['grade'].compute()
 
         df_col_loan_amount = df['loan_amnt']
-        mdf_col_loan_amount = mdf['loan_amnt']
+        # mdf_col_loan_amount = mdf['loan_amnt']
         pdf_col_loan_amount = pdf['loan_amnt']
         ddf_col_loan_amount = ddf['loan_amnt'].compute()
 
         df_cols_term__int_rate = df[['term', 'int_rate']]
         df_cols_term__installment = df[['term', 'installment']]
-        mdf_cols_term__int_rate = mdf[['term', 'int_rate']]
-        mdf_cols_term__installment = mdf[['term', 'installment']]
+        # mdf_cols_term__int_rate = mdf[['term', 'int_rate']]
+        # mdf_cols_term__installment = mdf[['term', 'installment']]
         pdf_cols_term__int_rate = pdf.select([['term', 'int_rate']])
         pdf_cols_term__installment = pdf.select([['term', 'installment']])
         ddf_cols_term__int_rate = ddf[['term', 'int_rate']].compute()
@@ -121,18 +234,18 @@ class RunnerConfig:
                 "concat": lambda : pandasDfos.concat(df_col_grade),
                 "merge": lambda : pandasDfos.merge(df_cols_term__int_rate, df_cols_term__installment, 'term'),
             },
-            "Modin": {
-               "isna": modinDfos.isna,
-                "replace": lambda : modinDfos.replace('OWN'),
-                "groupby": lambda : modinDfos.groupby(mdf_col_grade),
-                "sort": lambda : modinDfos.sort('loan_amnt'),
-                "mean": lambda : modinDfos.mean(mdf_col_loan_amount),
-                "drop": lambda : modinDfos.drop('loan_amnt'),
-                "dropna": modinDfos.dropna,
-                "fillna": modinDfos.fillna,
-                "concat": lambda : modinDfos.concat(mdf_col_grade),
-                "merge": lambda : modinDfos.merge(mdf_cols_term__int_rate, mdf_cols_term__installment, 'term'),
-            },
+            # "Modin": {
+            #    "isna": modinDfos.isna,
+            #     "replace": lambda : modinDfos.replace('OWN'),
+            #     "groupby": lambda : modinDfos.groupby(mdf_col_grade),
+            #     "sort": lambda : modinDfos.sort('loan_amnt'),
+            #     "mean": lambda : modinDfos.mean(mdf_col_loan_amount),
+            #     "drop": lambda : modinDfos.drop('loan_amnt'),
+            #     "dropna": modinDfos.dropna,
+            #     "fillna": modinDfos.fillna,
+            #     "concat": lambda : modinDfos.concat(mdf_col_grade),
+            #     "merge": lambda : modinDfos.merge(mdf_cols_term__int_rate, mdf_cols_term__installment, 'term'),
+            # },
             "Polars": {
                 "isna": polarsDfos.isna,
                 "replace": lambda : polarsDfos.replace('OWN'),
@@ -162,8 +275,8 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("Library", ['Pandas', 'Polars', 'Modin', 'Dask'])
-        factor2 = FactorModel("DataFrame size", ['Small'])
+        factor1 = FactorModel("Library", ['Pandas', 'Polars', 'Dask'])
+        factor2 = FactorModel("DataFrame size", ['Small', 'Large'])
         subject = FactorModel("DFO", ['isna', 'replace', 'groupby', 'sort', 'mean', 'drop', 'dropna', 'fillna', 'concat', 'merge'])
 
         self.run_table_model = RunTableModel(
@@ -176,8 +289,6 @@ class RunnerConfig:
     def before_experiment(self) -> None:
         """Perform any activity required before starting the experiment here
         Invoked only once during the lifetime of the program."""
-
-        time.sleep(10)
 
         output.console_log("Config.before_experiment() called!")
 
@@ -198,6 +309,26 @@ class RunnerConfig:
         output.console_log("Config.start_measurement() called!")
         self.start_time = time.time_ns()
         
+    def run_command_on_pc(command):
+        # SSH connection details
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        # Connect to PC via SSH
+        ssh.connect('your-pc-ip', username='your-username', password='your-password')
+        
+        # Execute the EnergyBridge-related command
+        stdin, stdout, stderr = ssh.exec_command(command)
+        
+        # Print command output
+        output = stdout.read().decode()
+        print(f"Command Output: {output}")
+        
+        # Close the connection
+        ssh.close()
+        return output
+
+    
     def interact(self, context: RunnerContext) -> None:
         """Perform any interaction with the running target system here, or block here until the target finishes."""
         output.console_log(context.run_variation['Library'])

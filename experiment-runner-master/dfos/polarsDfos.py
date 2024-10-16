@@ -5,11 +5,11 @@ class PolarsDFOs:
         self.dataset: pl.DataFrame = dataset
 
     def isna(self):
-        return self.dataset.select(pl.all().is_nan())
+        return self.dataset.select(pl.col(pl.Float64, pl.Float32, pl.Int64, pl.Int32, pl.Int16, pl.Int8).is_nan())
 
     def replace(self, valueToReplaceWithApple):
         return self.dataset.with_columns(
-            [pl.col(c).replace(valueToReplaceWithApple, 'apple') for c in self.dataset.columns]
+            [pl.col(c).replace(valueToReplaceWithApple, 'apple') for c in self.dataset.select(pl.col(pl.String)).columns]
         )
 
     def groupby(self, column):
@@ -33,5 +33,5 @@ class PolarsDFOs:
     def concat(self, column: pl.DataFrame):
         return pl.concat([self.dataset, column], how='horizontal')
 
-    def merge(self, cols1 : pl.DataFrame, cols2, on):
+    def merge(self, cols1 : pl.DataFrame, cols2 : pl.DataFrame, on):
         return cols1.join(cols2, on=on, how='inner')
