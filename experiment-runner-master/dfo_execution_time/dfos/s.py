@@ -1,3 +1,8 @@
+from flask import Flask, request, jsonify
+import pandas as pd
+import dask.dataframe as dd
+import polars as pl
+import modin.pandas as mpd
 
 from daskDfos import DaskDFOs
 from polarsDfos import PolarsDFOs
@@ -8,56 +13,13 @@ import dask.dataframe as dd
 import numpy as np
 import polars as pl
 import modin.pandas as mpd
-import time
-import math
-
-# df = pd.DataFrame({
-#     'term': ['Alice', 'OWN', 'Charlie', 'David', 'Eva'],
-#     'loan_amnt': [25, 30, 35, 40, 22],
-#     'int_rate': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'],
-#     'installment': ['New York2', 'Los Angeles2', 'Chicago2', 'Houston2', 'Phoenix2'],
-#     'grade': [70000, 80000, np.nan, 100000, 60000]
-# })
-
-# df = pd.read_csv('../../data/small.csv', low_memory=False, nrows=500)
-# pdf = pl.from_dataframe(df)
-# print('done reading')
-# df.to_csv('small.csv', index=False)
-
-# df.head(50).to_csv('loan2.csv', index=False)
-# df = df.fill_nan(None)
-# ddf = dd.from_pandas(df, npartitions=2)
-
-# pdfos = PolarsDFOs(pdf)
-
-# print(pdfos.)
-
-# df = df.with_columns([
-#     df[col].cast(pl.Float64) for col in df.columns if df[col].dtype == 
-# # ])
-# df = df.fill_null(np.nan)
-
-# plp = PolarsDFOs(df['mths_since_last_delinq', 'mths_since_last_record', 'open_acc'])
-# print(plp.dataset, '\n')
-
-
-# print(plp.isna())
-# print(plp.fillna())
-# print(plp.concat(df.select(pl.col('A').alias('D'))))
-# print(plp.merge(df[:,0:2], df[:,0:3].drop('B'), on='A'))
-# print(pp.groupby(df.iloc[:,0]))
-
-# merge
-# cols1 = (df.iloc[:,0:2])
-# cols2 = (df.iloc[:,0:3].drop(columns=df.columns[1]))
-# on = df.columns[0]
-# print(cols1, '\n', cols2)
-# print(p.merge(cols1, cols2, on=on))
-
+# import time
+# import math
+# import sys
 
 def set_functions_for_dataset():
         print('start reading small.csv')
-        df = pd.read_csv('../../data/large.csv', low_memory=False, nrows=1000000)
+        df = pd.read_csv('../data/large.csv', low_memory=False, nrows=500)
 
         print('start processing to dataframes')
 
@@ -147,13 +109,22 @@ def set_functions_for_dataset():
 
 functions = set_functions_for_dataset()
 
-for lib in functions:
-    for op in functions[lib]:
-        print('executing: ' + lib + ' with ' + op)
-        try:
-            st = time.time()
-            functions[lib][op]()
-            print('success in ' + str(round(time.time()-st, 2)) + ' seconds')
-        except Exception as e:
-            print('error: ' + str(e))
+app = Flask(__name__)
 
+# Initialize the functions object once at startup
+functions = set_functions_for_dataset()
+
+@app.route('/execute', methods=['POST'])
+def execute_route():
+    data = request.json
+    lib = data.get('lib')
+    op = data.get('op')
+    
+    try:
+        result = functions[lib][op]()
+        return jsonify({'status': 'success', 'result': result})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
