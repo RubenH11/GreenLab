@@ -10,8 +10,9 @@ if __name__ == "__main__":
         start = time.time()
         # df = pd.read_csv('../data/' + str(csv_size) + '.csv')
         df = pd.read_parquet('../df_'+str(csv_size)+'_parquet.parquet')
-        for i in range(25):
-            df.isna()
+
+        for i in range(1):
+            df.dropna()
         duration = time.time() - start
         print('took ' + str(duration) + ' seconds')
         

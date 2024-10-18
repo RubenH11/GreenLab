@@ -1,5 +1,5 @@
 import sys
-import pandas as pd
+import dask.dataframe as dd
 import time
 
 if __name__ == "__main__":
@@ -8,12 +8,14 @@ if __name__ == "__main__":
 
     try:
         start = time.time()
-        # df = pd.read_csv('../data/' + str(csv_size) + '.csv')
-        df = pd.read_parquet('../df_'+str(csv_size)+'_parquet.parquet')
-        for i in range(25):
-            df.isna()
+        # df = dd.read_csv('../data/' + str(csv_size) + '.csv')
+        df = dd.read_parquet('../df_'+str(csv_size)+'_parquet.parquet')
+        column = df['grade']
+
+        for i in range(1):
+            df.groupby(column)
         duration = time.time() - start
         print('took ' + str(duration) + ' seconds')
-        
+      
     except ValueError as e:
         print("error " + str(e))
