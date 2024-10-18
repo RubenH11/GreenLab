@@ -17,7 +17,7 @@ import math
 def set_functions_for_dataset():
         print('start reading large.csv')
         temp = time.time()
-        df = pd.read_csv('../../data/large.csv', low_memory=False, nrows=1000000)
+        df = pd.read_csv('../../data/large.csv', low_memory=False, nrows=10)
         # df = pd.read_csv('../../data/large.csv', low_memory=False, nrows=1000000)
         print("Reading took " + str(time.time() - temp) + " seconds")
 
@@ -70,7 +70,7 @@ def set_functions_for_dataset():
                 # "merge": lambda : pandasDfos.merge(df_cols_term__int_rate, df_cols_term__installment, 'term'),
             },
             "Modin": {
-               "isna": modinDfos.isna,
+               "isna": lambda : modinDfos.isna(),
                 "replace": lambda : modinDfos.replace('OWN'),
                 "groupby": lambda : modinDfos.groupby(mdf_col_grade),
                 "sort": lambda : modinDfos.sort('loan_amnt'),
@@ -117,7 +117,7 @@ for lib in functions:
             st = time.time()
             for i in range(x):
                 print("start " + str(i))
-                print(functions[lib][op]())
+                functions[lib][op]()
             print('success in ' + str(round(time.time()-st, 2)) + ' seconds')
         except Exception as e:
             print('error: ' + str(e))

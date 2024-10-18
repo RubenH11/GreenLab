@@ -48,6 +48,29 @@ def calc_ast_md5sum(src, name):
 
     return hashlib.md5(pickle.dumps(tree)).digest()
 
+# if __name__ == "__main__":
+#     try: 
+#         print('test')
+#         multiprocessing.set_start_method('fork')                        # Set "fork" as the default method for spawning new processes 
+#         print('test2')
+#         config_file = load_and_get_config_file_as_module("/Users/rch/development/applications/GreenLab/experiment-runner-master/dfo_execution_time/RunnerConfig.py")
+
+#         if hasattr(config_file, 'RunnerConfig'):
+#             config = config_file.RunnerConfig()                         # Instantiate config from injected file
+#             metadata = Metadata(
+#                 calc_ast_md5sum(pickle.source.getsource(config_file), sys.argv[1])  # hash of the whole file, not just RunnerConfig
+#             )
+
+#             ConfigValidator.validate_config(config)                     # Validate config as a valid RunnerConfig
+#             ExperimentController(config, metadata).do_experiment()      # Instantiate controller with config and start experiment
+#         else:
+#             raise ConfigInvalidClassNameError
+#     except BaseError as e:                                                  # All custom errors are displayed in custom format
+#         print(f"\n{e}")
+#         sys.exit(1)
+#     except:                                                                 # All non-covered errors are displayed normally
+#         traceback.print_exc()
+#         sys.exit(1)
 
 if __name__ == "__main__":
     try: 

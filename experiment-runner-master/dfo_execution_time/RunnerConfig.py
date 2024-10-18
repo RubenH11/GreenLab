@@ -18,16 +18,18 @@ import os
 import gc
 #import paramiko
 
-from dfo_execution_time.dfos.daskDfos import DaskDFOs
-from dfo_execution_time.dfos.polarsDfos import PolarsDFOs
-from dfo_execution_time.dfos.pandasDfos import PandasDFOs
-from dfo_execution_time.dfos.modinDfos import ModinDFOs
+# from dfo_execution_time.dfos.daskDfos import DaskDFOs
+# from dfo_execution_time.dfos.polarsDfos import PolarsDFOs
+# from dfo_execution_time.dfos.pandasDfos import PandasDFOs
+# from dfo_execution_time.dfos.modinDfos import ModinDFOs
 import pandas as pd
 import dask.dataframe as dd
 import numpy as np
-import polars as pl
 import modin.pandas as mpd
+import modin.config as cfg
+cfg.Engine.put('Python')
 import time
+import polars as pl
 
 #
 # from dfos.pandasDfos import PandasDFOs
@@ -35,6 +37,118 @@ import time
 # from dfos.polarsDfos import PolarsDFOs
 # from dfos.daskDfos import DaskDFOs
 # from dfo_execution_time.dfos.dfos_functions import set_functions_for_dataset
+class DaskDFOs:
+    def __init__(self, dataset):
+        self.dataset: dd.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.isna()
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.replace(valueToReplaceWithApple, 'apple')
+    def groupby(self, column):
+        return self.dataset.groupby(column)
+    def sort(self, column_name):
+        # print(self.dataset[column_name])
+        return self.dataset.sort_values(by=column_name)
+        # return self.dataset.set_index(column, sorted=True).compute()
+    def mean(self, column):
+        return column.mean()
+    def drop(self, column_name, dataset : dd.DataFrame):
+        return dataset.drop(columns=column_name)
+    def dropna(self):
+        return self.dataset.dropna()
+    def fillna(self):
+        return self.dataset.fillna('apple')
+    def concat(self, column):
+        return dd.concat([self.dataset, column], axis=1) # 1 = columns
+    def merge(self, cols1, cols2, on):
+        return cols1.merge(cols2, on=on)
+    
+class ModinDFOs:
+    def __init__(self, dataset):
+        self.dataset: mdp.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.isna()
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.replace(valueToReplaceWithApple, 'apple')
+    def groupby(self, column):
+        return self.dataset.groupby(column)
+    def sort(self, column_name):
+        return self.dataset.sort_values(by=column_name)
+    def mean(self, column):
+        return column.mean()
+    def drop(self, column_name):
+        return self.dataset.drop(columns=column_name)
+    def dropna(self):
+        return self.dataset.dropna()
+    def fillna(self):
+        return self.dataset.fillna('apple')
+    def concat(self, column):
+        return mdp.concat([self.dataset, column], axis=1) # 1 = columns
+    def merge(self, cols1, cols2, on):
+        return cols1.merge(cols2, on=on)
+    
+class PandasDFOs:
+    def __init__(self, dataset):
+        self.dataset: pd.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.isna()
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.replace(valueToReplaceWithApple, 'apple')
+    def groupby(self, column):
+        return self.dataset.groupby(column)
+    def sort(self, column_name):
+        return self.dataset.sort_values(by=column_name)
+    def mean(self, column):
+        return column.mean()
+    def drop(self, column_name):
+        return self.dataset.drop(columns=column_name)
+    def dropna(self):
+        return self.dataset.dropna()
+    def fillna(self):
+        return self.dataset.fillna('apple')
+    def concat(self, column):
+        return pd.concat([self.dataset, column], axis=1) # 1 = columns
+    def merge(self, cols1, cols2, on):
+        return cols1.merge(cols2, on=on)
+    
+class PolarsDFOs:
+    def __init__(self, dataset):
+        self.dataset: pl.DataFrame = dataset
+
+    def isna(self):
+        return self.dataset.select(pl.col(pl.Float64, pl.Float32, pl.Int64, pl.Int32, pl.Int16, pl.Int8).is_nan())
+
+    def replace(self, valueToReplaceWithApple):
+        return self.dataset.with_columns(
+            [pl.col(c).replace(valueToReplaceWithApple, 'apple') for c in self.dataset.select(pl.col(pl.String)).columns]
+        )
+
+    def groupby(self, column):
+        return self.dataset.group_by(column)
+
+    def sort(self, column_name):
+        return self.dataset.sort(column_name)
+
+    def mean(self, column_name):
+        return self.dataset.select(pl.col(column_name).mean()).item()
+
+    def drop(self, column_name):
+        return self.dataset.drop(column_name)
+
+    def dropna(self):
+        return self.dataset.drop_nulls()
+
+    def fillna(self):
+        return self.dataset.fill_nan('apple')
+
+    def concat(self, column: pl.DataFrame):
+        return pl.concat([self.dataset, column], how='horizontal')
+
+    def merge(self, cols1 : pl.DataFrame, cols2 : pl.DataFrame, on):
+        return cols1.join(cols2, on=on, how='inner')
 
 
 class RunnerConfig:
@@ -54,9 +168,11 @@ class RunnerConfig:
 
     """The time Experiment Runner will wait after a run completes.
     This can be essential to accommodate for cooldown periods on some systems."""
-    time_between_runs_in_ms:    int             = 600
+    time_between_runs_in_ms:    int             = 1
 
     start_time = 0
+
+    functions = {}
 
     # Dynamic configurations can be one-time satisfied here before the program takes the config as-is
     # e.g. Setting some variable based on some criteria
@@ -86,7 +202,7 @@ class RunnerConfig:
     def set_functions_for_dataset(self):
         print('start reading large.csv')
         temp = time.time()
-        df = pd.read_csv('data/large.csv', low_memory=False, nrows=10)
+        df = pd.read_csv('data/large.csv', low_memory=False, nrows=100000)
         # df = pd.read_csv('../../data/large.csv', low_memory=False, nrows=1000000)
         print("Reading took " + str(time.time() - temp) + " seconds")
 
@@ -101,7 +217,8 @@ class RunnerConfig:
         pdf.fill_null(np.nan) # required for isna and fillna
         polarsDfos = PolarsDFOs(pdf)
 
-        ddf = dd.from_pandas(df, npartitions=2)
+        ddf : dd.DataFrame = dd.from_pandas(df, npartitions=2)
+        ddf2 = ddf.copy()
         daskDfos = DaskDFOs(ddf)
 
         df_col_grade = df['grade']
@@ -123,9 +240,6 @@ class RunnerConfig:
         # pdf_cols_term__installment = pdf['term', 'installment']
         # ddf_cols_term__int_rate = ddf[['term', 'int_rate']].compute()
         # ddf_cols_term__installment = ddf[['term', 'installment']].compute()
-
-        def f():
-            pandasDfos.isna()
 
         print('defining functions')
         return {
@@ -171,7 +285,7 @@ class RunnerConfig:
                 "groupby": lambda : daskDfos.groupby(ddf_col_grade),
                 "sort": lambda : daskDfos.sort('loan_amnt'),
                 "mean": lambda : daskDfos.mean(ddf_col_loan_amount),
-                "drop": lambda : daskDfos.drop('loan_amnt'),
+                "drop": lambda : daskDfos.drop('loan_amnt', ddf2),
                 "dropna": lambda : daskDfos.dropna(),
                 "fillna": lambda : daskDfos.fillna(),
                 "concat": lambda : daskDfos.concat(ddf_col_grade)
@@ -182,7 +296,7 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("Library", ['Pandas', 'Dask', 'Polars'])
+        factor1 = FactorModel("Library", ['Pandas', 'Modin', 'Polars'])
         factor2 = FactorModel("DataFrame size", ['Large'])
         subject = FactorModel("DFO", ['isna', 'replace', 'groupby', 'sort', 'mean', 'drop', 'dropna', 'fillna', 'concat'])
 
@@ -262,6 +376,7 @@ class RunnerConfig:
         Activities after stopping the run should also be performed here."""
 
         output.console_log("Config.stop_run() called!")
+        gc.collect()
 
     def populate_run_data(self, context: RunnerContext) -> Optional[Dict[str, SupportsStr]]:
         """Parse and process any measurement data here.
