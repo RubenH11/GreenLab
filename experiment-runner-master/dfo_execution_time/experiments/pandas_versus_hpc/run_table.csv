@@ -1,28 +1,28 @@
 __run_id,__done,DFO,Library,DataFrame size,execution_time,executions_per_minute
+run_7_repetition_0,DONE,groupby,Modin,Large,368000,163043
+run_16_repetition_0,DONE,drop,Modin,Large,93735000,640
+run_23_repetition_0,DONE,fillna,Polars,Large,41000,1463414
+run_17_repetition_0,DONE,drop,Polars,Large,1737000,34542
+run_18_repetition_0,DONE,dropna,Pandas,Large,69059000,868
+run_24_repetition_0,DONE,concat,Pandas,Large,97581000,614
+run_4_repetition_0,DONE,replace,Modin,Large,300217000,199
+run_0_repetition_0,DONE,isna,Pandas,Large,95563000,627
+run_10_repetition_0,DONE,sort,Modin,Large,740732000,81
+run_9_repetition_0,DONE,sort,Pandas,Large,100070000,599
+run_11_repetition_0,DONE,sort,Polars,Large,39000,1538461
+run_5_repetition_0,DONE,replace,Polars,Large,46000,1304347
+run_25_repetition_0,DONE,concat,Modin,Large,57000,1052631
+run_19_repetition_0,DONE,dropna,Modin,Large,120958000,496
+run_6_repetition_0,DONE,groupby,Pandas,Large,351000,170940
+run_3_repetition_0,DONE,replace,Pandas,Large,188540000,318
+run_14_repetition_0,DONE,mean,Polars,Large,896000,66964
+run_21_repetition_0,DONE,fillna,Pandas,Large,317239000,189
+run_8_repetition_0,DONE,groupby,Polars,Large,54000,1111111
+run_2_repetition_0,TODO,isna,Polars,Large, , 
 run_20_repetition_0,TODO,dropna,Polars,Large, , 
-run_7_repetition_0,TODO,groupby,Modin,Large, , 
-run_11_repetition_0,TODO,sort,Polars,Large, , 
-run_0_repetition_0,TODO,isna,Pandas,Large, , 
-run_6_repetition_0,TODO,groupby,Pandas,Large, , 
-run_12_repetition_0,TODO,mean,Pandas,Large, , 
-run_25_repetition_0,TODO,concat,Modin,Large, , 
-run_17_repetition_0,TODO,drop,Polars,Large, , 
-run_8_repetition_0,TODO,groupby,Polars,Large, , 
-run_10_repetition_0,TODO,sort,Modin,Large, , 
-run_19_repetition_0,TODO,dropna,Modin,Large, , 
-run_16_repetition_0,TODO,drop,Modin,Large, , 
-run_24_repetition_0,TODO,concat,Pandas,Large, , 
-run_23_repetition_0,TODO,fillna,Polars,Large, , 
-run_9_repetition_0,TODO,sort,Pandas,Large, , 
-run_5_repetition_0,TODO,replace,Polars,Large, , 
-run_14_repetition_0,TODO,mean,Polars,Large, , 
-run_4_repetition_0,TODO,replace,Modin,Large, , 
+run_1_repetition_0,TODO,isna,Modin,Large, , 
 run_13_repetition_0,TODO,mean,Modin,Large, , 
+run_12_repetition_0,TODO,mean,Pandas,Large, , 
 run_26_repetition_0,TODO,concat,Polars,Large, , 
 run_15_repetition_0,TODO,drop,Pandas,Large, , 
-run_1_repetition_0,TODO,isna,Modin,Large, , 
-run_2_repetition_0,TODO,isna,Polars,Large, , 
-run_21_repetition_0,TODO,fillna,Pandas,Large, , 
-run_3_repetition_0,TODO,replace,Pandas,Large, , 
-run_18_repetition_0,TODO,dropna,Pandas,Large, , 
 run_22_repetition_0,TODO,fillna,Modin,Large, , 

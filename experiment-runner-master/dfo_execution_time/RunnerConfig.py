@@ -119,18 +119,21 @@ class PolarsDFOs:
         self.dataset: pl.DataFrame = dataset
 
     def isna(self):
-        return self.dataset.select(pl.col(pl.Float64, pl.Float32, pl.Int64, pl.Int32, pl.Int16, pl.Int8).is_nan())
+        # return self.dataset.select(pl.col(pl.Float64, pl.Float32, pl.Int64, pl.Int32, pl.Int16, pl.Int8).is_nan())
+        pass
 
     def replace(self, valueToReplaceWithApple):
-        return self.dataset.with_columns(
-            [pl.col(c).replace(valueToReplaceWithApple, 'apple') for c in self.dataset.select(pl.col(pl.String)).columns]
-        )
+        # return self.dataset.with_columns(
+        #     [pl.col(c).replace(valueToReplaceWithApple, 99) for c in self.dataset.select(pl.col(pl.String)).columns]
+        # )
+        pass
 
     def groupby(self, column):
-        return self.dataset.group_by(column)
+        return self.dataset.groupby(column)
 
     def sort(self, column_name):
-        return self.dataset.sort(column_name)
+        # return self.dataset.sort(column_name)
+        pass
 
     def mean(self, column_name):
         return self.dataset.select(pl.col(column_name).mean()).item()
@@ -139,10 +142,12 @@ class PolarsDFOs:
         return self.dataset.drop(column_name)
 
     def dropna(self):
-        return self.dataset.drop_nulls()
+        # return self.dataset.drop_nulls()
+        pass
 
     def fillna(self):
-        return self.dataset.fill_nan('apple')
+        # return self.dataset.fill_nan('apple')
+        pass
 
     def concat(self, column: pl.DataFrame):
         return pl.concat([self.dataset, column], how='horizontal')
